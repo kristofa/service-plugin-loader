@@ -26,11 +26,9 @@ public class ServicePluginLoaderTest {
             public Collection<ServicePluginClassPath> getPlugins() {
                 try {
                     final ServicePluginClassPath plugin1 =
-                        new ServicePluginClassPath(Arrays.asList(new URL(
-                            "file:src/test/resources/shapedrawer1-0.1-SNAPSHOT.jar")));
+                        new ServicePluginClassPath(new URL("file:src/test/resources/shapedrawer1-0.1-SNAPSHOT.jar"));
                     final ServicePluginClassPath plugin2 =
-                        new ServicePluginClassPath(Arrays.asList(new URL(
-                            "file:src/test/resources/shapedrawer2-0.1-SNAPSHOT.jar")));
+                        new ServicePluginClassPath(new URL("file:src/test/resources/shapedrawer2-0.1-SNAPSHOT.jar"));
                     return Arrays.asList(plugin1, plugin2);
                 } catch (final MalformedURLException e) {
                     throw new IllegalStateException(e);
