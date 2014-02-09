@@ -22,13 +22,13 @@ public class ServicePluginLoaderTest {
         final ServicePluginsClassPathProvider pluginsClassPathProvider = new ServicePluginsClassPathProvider() {
 
             @Override
-            public Collection<ServicePluginClasspath> getPlugins() {
+            public Collection<ServicePluginClassPath> getPlugins() {
                 try {
-                    final ServicePluginClasspath plugin1 =
-                        new ServicePluginClasspath(Arrays.asList(new URL(
+                    final ServicePluginClassPath plugin1 =
+                        new ServicePluginClassPath(Arrays.asList(new URL(
                             "file:src/test/resources/shapedrawer1-0.1-SNAPSHOT.jar")));
-                    final ServicePluginClasspath plugin2 =
-                        new ServicePluginClasspath(Arrays.asList(new URL(
+                    final ServicePluginClassPath plugin2 =
+                        new ServicePluginClassPath(Arrays.asList(new URL(
                             "file:src/test/resources/shapedrawer2-0.1-SNAPSHOT.jar")));
                     return Arrays.asList(plugin1, plugin2);
                 } catch (final MalformedURLException e) {

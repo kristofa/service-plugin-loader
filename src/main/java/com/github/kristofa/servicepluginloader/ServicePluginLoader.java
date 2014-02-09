@@ -72,7 +72,7 @@ public class ServicePluginLoader<T> {
 
     private void load(final Class<T> clazz) throws MalformedURLException {
 
-        for (final ServicePluginClasspath extension : extensionProvider.getPlugins()) {
+        for (final ServicePluginClassPath extension : extensionProvider.getPlugins()) {
 
             final URL[] urls = getArray(extension);
             final URLClassLoader urlClassLoader = new URLClassLoader(urls);
@@ -93,7 +93,7 @@ public class ServicePluginLoader<T> {
 
     }
 
-    private URL[] getArray(final ServicePluginClasspath extension) {
+    private URL[] getArray(final ServicePluginClassPath extension) {
         final URL[] urls = new URL[extension.getUrls().size()];
 
         int i = 0;

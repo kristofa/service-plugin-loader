@@ -14,6 +14,6 @@ public interface ServicePluginsClassPathProvider {
      * 
      * @return Collection which contains 1 entry for each plugin. Each entry contains the classpath for a plugin.
      */
-    Collection<ServicePluginClasspath> getPlugins();
+    Collection<ServicePluginClassPath> getPlugins();
 
 }

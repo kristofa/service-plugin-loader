@@ -12,7 +12,7 @@ import java.util.HashSet;
  * 
  * @author kristof
  */
-public class ServicePluginClasspath {
+public class ServicePluginClassPath {
 
     private final Collection<URL> urls = new HashSet<URL>();
 
@@ -21,7 +21,7 @@ public class ServicePluginClasspath {
      * 
      * @param urls Urls at which to load classes for this plugin.
      */
-    public ServicePluginClasspath(final Collection<URL> urls) {
+    public ServicePluginClassPath(final Collection<URL> urls) {
         this.urls.addAll(urls);
     }
 
