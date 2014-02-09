@@ -41,7 +41,22 @@ public class ServicePluginLoaderTest {
     }
 
     @Test
-    public void testGetExactMatchingProperties() {
+    public void testGetExactlyMatchingProperties() {
+        final Properties properties = new Properties();
+        properties.setProperty("shape", "plus");
+        properties.setProperty("description", "Shape drawer that draws shapes using + sign.");
+        final Collection<ShapeDrawer> plugins = pluginLoader.get(ShapeDrawer.class, properties);
+        assertEquals(1, plugins.size());
+
+        final Properties properties2 = new Properties();
+        properties2.setProperty("shape", "min");
+        properties2.setProperty("description", "Shape drawer that draws shapes using - sign.");
+        final Collection<ShapeDrawer> plugins2 = pluginLoader.get(ShapeDrawer.class, properties2);
+        assertEquals(1, plugins2.size());
+    }
+
+    @Test
+    public void testGetPartiallyMatchingProperties() {
         final Properties properties = new Properties();
         properties.setProperty("shape", "plus");
         final Collection<ShapeDrawer> plugins = pluginLoader.get(ShapeDrawer.class, properties);
@@ -59,5 +74,13 @@ public class ServicePluginLoaderTest {
         properties.setProperty("shape", "hashtag");
         final Collection<ShapeDrawer> plugins = pluginLoader.get(ShapeDrawer.class, properties);
         assertTrue(plugins.isEmpty());
+    }
+
+    @Test
+    public void testGetNoPropertiesSpecified() {
+        final Properties properties = new Properties();
+        final Collection<ShapeDrawer> plugins = pluginLoader.get(ShapeDrawer.class, properties);
+        assertEquals(2, plugins.size());
+
     }
 }
