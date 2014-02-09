@@ -26,6 +26,15 @@ public class ServicePluginClassPath {
     }
 
     /**
+     * Create a new instance. Can be used in case classpath for plugin is single url.
+     * 
+     * @param url Single URL.
+     */
+    public ServicePluginClassPath(final URL url) {
+        urls.add(url);
+    }
+
+    /**
      * Get classpath urls for plugin.
      * 
      * @return Collection of classpath urls for plugin.
