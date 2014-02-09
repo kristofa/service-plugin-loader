@@ -18,9 +18,20 @@ import com.github.kristofa.servicepluginloader.example.ShapeDrawer;
 public class ServicePluginLoaderTest {
 
     private ServicePluginLoader<ShapeDrawer> pluginLoader;
+    private Properties expectedPluginProperties;
+    private Properties expectedPluginProperties2;
 
     @Before
     public void setup() {
+
+        expectedPluginProperties = new Properties();
+        expectedPluginProperties.setProperty("shape", "plus");
+        expectedPluginProperties.setProperty("description", "Shape drawer that draws shapes using + sign.");
+
+        expectedPluginProperties2 = new Properties();
+        expectedPluginProperties2.setProperty("shape", "min");
+        expectedPluginProperties2.setProperty("description", "Shape drawer that draws shapes using - sign.");
+
         final ServicePluginsClassPathProvider pluginsClassPathProvider = new ServicePluginsClassPathProvider() {
 
             @Override
@@ -50,42 +61,20 @@ public class ServicePluginLoaderTest {
 
     @Test
     public void testGetExactlyMatchingProperties() {
-        final Properties properties = new Properties();
-        properties.setProperty("shape", "plus");
-        properties.setProperty("description", "Shape drawer that draws shapes using + sign.");
-        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.get(ShapeDrawer.class, properties);
-        assertEquals(1, plugins.size());
-        final ServicePlugin<ShapeDrawer> plugin1 = plugins.iterator().next();
-        assertEquals(properties, plugin1.getProperties());
-        assertNotNull(plugin1.getPlugin());
 
-        final Properties properties2 = new Properties();
-        properties2.setProperty("shape", "min");
-        properties2.setProperty("description", "Shape drawer that draws shapes using - sign.");
-        final Collection<ServicePlugin<ShapeDrawer>> plugins2 = pluginLoader.get(ShapeDrawer.class, properties2);
-        assertEquals(1, plugins2.size());
-        final ServicePlugin<ShapeDrawer> plugin2 = plugins2.iterator().next();
-        assertEquals(properties2, plugin2.getProperties());
-        assertNotNull(plugin2.getPlugin());
+        matchSinglePlugin(expectedPluginProperties, expectedPluginProperties);
+        matchSinglePlugin(expectedPluginProperties2, expectedPluginProperties2);
     }
 
     @Test
     public void testGetPartiallyMatchingProperties() {
-        final Properties properties = new Properties();
-        properties.setProperty("shape", "plus");
-        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.get(ShapeDrawer.class, properties);
-        assertEquals(1, plugins.size());
-        final ServicePlugin<ShapeDrawer> plugin1 = plugins.iterator().next();
-        final Properties expectedProperties1 = new Properties();
-        expectedProperties1.setProperty("shape", "plus");
-        expectedProperties1.setProperty("description", "Shape drawer that draws shapes using + sign.");
-        assertEquals(expectedProperties1, plugin1.getProperties());
-        assertNotNull(plugin1.getPlugin());
+        final Properties matchingProperties = new Properties();
+        matchingProperties.setProperty("shape", "plus");
+        matchSinglePlugin(matchingProperties, expectedPluginProperties);
 
         final Properties properties2 = new Properties();
         properties2.setProperty("shape", "min");
-        final Collection<ServicePlugin<ShapeDrawer>> plugins2 = pluginLoader.get(ShapeDrawer.class, properties2);
-        assertEquals(1, plugins2.size());
+        matchSinglePlugin(properties2, expectedPluginProperties2);
     }
 
     @Test
@@ -102,5 +91,13 @@ public class ServicePluginLoaderTest {
         final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.get(ShapeDrawer.class, properties);
         assertEquals(2, plugins.size());
 
+    }
+
+    private void matchSinglePlugin(final Properties matchingProperties, final Properties allServicePluginProperties) {
+        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.get(ShapeDrawer.class, matchingProperties);
+        assertEquals(1, plugins.size());
+        final ServicePlugin<ShapeDrawer> plugin1 = plugins.iterator().next();
+        assertEquals(allServicePluginProperties, plugin1.getProperties());
+        assertNotNull(plugin1.getPlugin());
     }
 }
