@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.HashSet;
 
 /**
- * Encapsulates a collection of urls at which we can load classes that are specific for a Service Plugin extension.
+ * Encapsulates a collection of url's at which we can load classes that are specific for a Service Plugin extension.
+ * <p/>
+ * So it defines the classpath for a single service plugin.
  * 
  * @author kristof
  */
