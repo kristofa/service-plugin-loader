@@ -47,7 +47,9 @@ public class ServicePluginLoader<T> {
      * Discovers and loads plugins.
      * 
      * @param clazz Plugin type.
-     * @param properties Additional filter on plugins.
+     * @param properties Additional filter on plugins. A plugin will be returned if it has all given properties set. If these
+     *            properties are a subset of the properties defined by the plugin it will also be returned. If empty
+     *            properties object is passed in all plugins will be returned.
      * @return Collection of plugins. Collection can be empty in case we can't find matching plugins.
      */
     public Collection<T> get(final Class<T> clazz, final Properties properties) {
@@ -66,7 +68,27 @@ public class ServicePluginLoader<T> {
         if (collection != null) {
             return Collections.unmodifiableCollection(collection);
         }
-        return Collections.emptyList();
+        // Do a partial match.
+        final Collection<T> servicePlugins = new ArrayList<T>();
+        for (final Properties pluginProps : serviceMap.keySet()) {
+            boolean match = true;
+            for (final Object wantedKey : properties.keySet()) {
+                final String foundPropertyValue = pluginProps.getProperty(wantedKey.toString());
+                if (foundPropertyValue == null) {
+                    match = false;
+                    break;
+                }
+                final String wantedValue = properties.getProperty(wantedKey.toString());
+                if (!wantedValue.equals(foundPropertyValue)) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                servicePlugins.addAll(serviceMap.get(pluginProps));
+            }
+        }
+        return servicePlugins;
 
     }
 
