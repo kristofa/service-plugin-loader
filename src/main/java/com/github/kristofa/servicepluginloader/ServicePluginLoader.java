@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * {@link ServicePluginLoader} is used to discover and load services that are extensions/plugins to our application.
  * <p/>
@@ -29,31 +31,44 @@ import java.util.Properties;
  */
 public class ServicePluginLoader<T> {
 
-    private final Map<Properties, Collection<T>> serviceMap = new HashMap<Properties, Collection<T>>();
-    private final ServicePluginsClassPathProvider extensionProvider;
+    private final static Properties EMPTY_PROPERTIES = new Properties();
+    private final Map<Properties, Collection<ServicePlugin<T>>> serviceMap =
+        new HashMap<Properties, Collection<ServicePlugin<T>>>();
+    private final ServicePluginsClassPathProvider pluginsClassPathProvider;
     private boolean initialized = false;
 
     /**
      * Creates a new instance.
      * 
-     * @param pluginProvider Provides the classpath for each of our plugins.
+     * @param pluginProvider Provides the classpath for each of our plugins. Should not be <code>null</code>.
      */
     public ServicePluginLoader(final ServicePluginsClassPathProvider pluginProvider) {
-        this.extensionProvider = pluginProvider;
+        Validate.notNull(pluginProvider);
+        this.pluginsClassPathProvider = pluginProvider;
+    }
 
+    /**
+     * Discovers and loads plugins without filtering on Properties.
+     * 
+     * @param clazz Plugin type. Should not be <code>null</code>.
+     * @return Collection of plugins. Collection can be empty in case we can't find plugins for given type.
+     */
+    public Collection<ServicePlugin<T>> get(final Class<T> clazz) {
+        return get(clazz, EMPTY_PROPERTIES);
     }
 
     /**
      * Discovers and loads plugins.
      * 
-     * @param clazz Plugin type.
-     * @param properties Additional filter on plugins. A plugin will be returned if it has all given properties set. If these
-     *            properties are a subset of the properties defined by the plugin it will also be returned. If empty
-     *            properties object is passed in all plugins will be returned.
+     * @param clazz Plugin type. Should not be <code>null</code>.
+     * @param properties Additional filter on plugins. Should not be <code>null</code>. A plugin will be returned if it has
+     *            all given properties set. If these properties are a subset of the properties defined by the plugin it will
+     *            also be returned. If empty properties object is passed in all plugins will be returned.
      * @return Collection of plugins. Collection can be empty in case we can't find matching plugins.
      */
-    public Collection<T> get(final Class<T> clazz, final Properties properties) {
-
+    public Collection<ServicePlugin<T>> get(final Class<T> clazz, final Properties properties) {
+        Validate.notNull(clazz);
+        Validate.notNull(properties);
         synchronized (this) {
             if (!initialized) {
                 try {
@@ -64,12 +79,12 @@ public class ServicePluginLoader<T> {
                 initialized = true;
             }
         }
-        final Collection<T> collection = serviceMap.get(properties);
+        final Collection<ServicePlugin<T>> collection = serviceMap.get(properties);
         if (collection != null) {
             return Collections.unmodifiableCollection(collection);
         }
         // Do a partial match.
-        final Collection<T> servicePlugins = new ArrayList<T>();
+        final Collection<ServicePlugin<T>> servicePlugins = new ArrayList<ServicePlugin<T>>();
         for (final Properties pluginProps : serviceMap.keySet()) {
             boolean match = true;
             for (final Object wantedKey : properties.keySet()) {
@@ -94,7 +109,7 @@ public class ServicePluginLoader<T> {
 
     private void load(final Class<T> clazz) throws MalformedURLException {
 
-        for (final ServicePluginClassPath extension : extensionProvider.getPlugins()) {
+        for (final ServicePluginClassPath extension : pluginsClassPathProvider.getPlugins()) {
 
             final URL[] urls = getArray(extension);
             final URLClassLoader urlClassLoader = new URLClassLoader(urls);
@@ -104,12 +119,12 @@ public class ServicePluginLoader<T> {
                 final T instance = iterator.next();
                 final Properties properties = loadPropertiesForClass(urlClassLoader, instance.getClass().getName());
 
-                Collection<T> collection = serviceMap.get(properties);
+                Collection<ServicePlugin<T>> collection = serviceMap.get(properties);
                 if (collection == null) {
-                    collection = new ArrayList<T>();
+                    collection = new ArrayList<ServicePlugin<T>>();
                     serviceMap.put(properties, collection);
                 }
-                collection.add(instance);
+                collection.add(new ServicePlugin<T>(instance, properties));
             }
         }
 
