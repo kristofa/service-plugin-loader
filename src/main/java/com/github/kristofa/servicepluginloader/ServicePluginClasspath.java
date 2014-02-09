@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * Encapsulates a collection of url's at which we can load classes that are specific for a Service Plugin extension.
  * <p/>
@@ -19,9 +21,12 @@ public class ServicePluginClassPath {
     /**
      * Create a new instance.
      * 
-     * @param urls Urls at which to load classes for this plugin.
+     * @param urls Urls at which to load classes for this plugin. Collection should not be <code>null</code> and not be
+     *            empty.
      */
     public ServicePluginClassPath(final Collection<URL> urls) {
+        Validate.notNull(urls);
+        Validate.isTrue(!urls.isEmpty(), "Collection should not be empty.");
         this.urls.addAll(urls);
     }
 
@@ -31,6 +36,7 @@ public class ServicePluginClassPath {
      * @param url Single URL.
      */
     public ServicePluginClassPath(final URL url) {
+        Validate.notNull(url);
         urls.add(url);
     }
 
