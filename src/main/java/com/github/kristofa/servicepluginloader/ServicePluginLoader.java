@@ -60,9 +60,8 @@ public class ServicePluginLoader<T> {
     }
 
     /**
-     * Discovers and loads plugins without filtering on Properties.
+     * Discovers and loads plugins without filtering on properties.
      * 
-     * @param clazz Plugin type. Should not be <code>null</code>.
      * @return Collection of plugins. Collection can be empty in case we can't find plugins for given type.
      */
     public Collection<ServicePlugin<T>> load() {
@@ -72,7 +71,6 @@ public class ServicePluginLoader<T> {
     /**
      * Discovers and loads plugins.
      * 
-     * @param clazz Plugin type. Should not be <code>null</code>.
      * @param properties Additional filter on plugins. Should not be <code>null</code>. A plugin will be returned if it has
      *            all given properties set. If these properties are a subset of the properties defined by the plugin it will
      *            also be returned. If empty properties object is passed in all plugins will be returned.
