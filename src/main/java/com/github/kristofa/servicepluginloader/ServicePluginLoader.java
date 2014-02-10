@@ -83,17 +83,22 @@ public class ServicePluginLoader<T> {
         if (collection != null) {
             return Collections.unmodifiableCollection(collection);
         }
-        // Do a partial match.
+        // See if the properties we want are a subset of 1 or more plugins.
+        return matchSubset(properties);
+
+    }
+
+    private Collection<ServicePlugin<T>> matchSubset(final Properties wantedProperties) {
         final Collection<ServicePlugin<T>> servicePlugins = new ArrayList<ServicePlugin<T>>();
         for (final Properties pluginProps : serviceMap.keySet()) {
             boolean match = true;
-            for (final Object wantedKey : properties.keySet()) {
+            for (final Object wantedKey : wantedProperties.keySet()) {
                 final String foundPropertyValue = pluginProps.getProperty(wantedKey.toString());
                 if (foundPropertyValue == null) {
                     match = false;
                     break;
                 }
-                final String wantedValue = properties.getProperty(wantedKey.toString());
+                final String wantedValue = wantedProperties.getProperty(wantedKey.toString());
                 if (!wantedValue.equals(foundPropertyValue)) {
                     match = false;
                     break;
@@ -104,7 +109,6 @@ public class ServicePluginLoader<T> {
             }
         }
         return servicePlugins;
-
     }
 
     private void load(final Class<T> clazz) throws MalformedURLException {
