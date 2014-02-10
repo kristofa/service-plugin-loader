@@ -49,25 +49,25 @@ public class ServicePluginLoaderTest {
             }
         };
 
-        pluginLoader = new ServicePluginLoader<ShapeDrawer>(pluginsClassPathProvider);
+        pluginLoader = new ServicePluginLoader<ShapeDrawer>(ShapeDrawer.class, pluginsClassPathProvider);
     }
 
     @Test
-    public void testGetAllForType() {
-        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.get(ShapeDrawer.class);
+    public void testLoadAll() {
+        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.load();
         assertEquals(2, plugins.size());
 
     }
 
     @Test
-    public void testGetExactlyMatchingProperties() {
+    public void testLoadExactlyMatchingProperties() {
 
         matchSinglePlugin(expectedPluginProperties, expectedPluginProperties);
         matchSinglePlugin(expectedPluginProperties2, expectedPluginProperties2);
     }
 
     @Test
-    public void testGetPartiallyMatchingProperties() {
+    public void testLoadPartiallyMatchingProperties() {
         final Properties matchingProperties = new Properties();
         matchingProperties.setProperty("shape", "plus");
         matchSinglePlugin(matchingProperties, expectedPluginProperties);
@@ -78,23 +78,23 @@ public class ServicePluginLoaderTest {
     }
 
     @Test
-    public void testGetNoMatchingProperties() {
+    public void testLoadNoMatchingProperties() {
         final Properties properties = new Properties();
         properties.setProperty("shape", "hashtag");
-        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.get(ShapeDrawer.class, properties);
+        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.load(properties);
         assertTrue(plugins.isEmpty());
     }
 
     @Test
-    public void testGetNoPropertiesSpecified() {
+    public void testLoadNoPropertiesSpecified() {
         final Properties properties = new Properties();
-        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.get(ShapeDrawer.class, properties);
+        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.load(properties);
         assertEquals(2, plugins.size());
 
     }
 
     private void matchSinglePlugin(final Properties matchingProperties, final Properties allServicePluginProperties) {
-        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.get(ShapeDrawer.class, matchingProperties);
+        final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.load(matchingProperties);
         assertEquals(1, plugins.size());
         final ServicePlugin<ShapeDrawer> plugin1 = plugins.iterator().next();
         assertEquals(allServicePluginProperties, plugin1.getProperties());

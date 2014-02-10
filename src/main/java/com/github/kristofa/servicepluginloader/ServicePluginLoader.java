@@ -35,15 +35,19 @@ public class ServicePluginLoader<T> {
     private final Map<Properties, Collection<ServicePlugin<T>>> serviceMap =
         new HashMap<Properties, Collection<ServicePlugin<T>>>();
     private final ServicePluginsClassPathProvider pluginsClassPathProvider;
+    private final Class<T> clazz;
     private boolean initialized = false;
 
     /**
      * Creates a new instance.
      * 
+     * @param clazz Service Plugin type.
      * @param pluginProvider Provides the classpath for each of our plugins. Should not be <code>null</code>.
      */
-    public ServicePluginLoader(final ServicePluginsClassPathProvider pluginProvider) {
+    public ServicePluginLoader(final Class<T> clazz, final ServicePluginsClassPathProvider pluginProvider) {
+        Validate.notNull(clazz);
         Validate.notNull(pluginProvider);
+        this.clazz = clazz;
         this.pluginsClassPathProvider = pluginProvider;
     }
 
@@ -53,8 +57,8 @@ public class ServicePluginLoader<T> {
      * @param clazz Plugin type. Should not be <code>null</code>.
      * @return Collection of plugins. Collection can be empty in case we can't find plugins for given type.
      */
-    public Collection<ServicePlugin<T>> get(final Class<T> clazz) {
-        return get(clazz, EMPTY_PROPERTIES);
+    public Collection<ServicePlugin<T>> load() {
+        return load(EMPTY_PROPERTIES);
     }
 
     /**
@@ -66,7 +70,7 @@ public class ServicePluginLoader<T> {
      *            also be returned. If empty properties object is passed in all plugins will be returned.
      * @return Collection of plugins. Collection can be empty in case we can't find matching plugins.
      */
-    public Collection<ServicePlugin<T>> get(final Class<T> clazz, final Properties properties) {
+    public Collection<ServicePlugin<T>> load(final Properties properties) {
         Validate.notNull(clazz);
         Validate.notNull(properties);
         synchronized (this) {
