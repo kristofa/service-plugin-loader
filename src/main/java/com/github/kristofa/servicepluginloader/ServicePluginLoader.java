@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.annotation.PreDestroy;
+
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +115,7 @@ public class ServicePluginLoader<T> {
      * <p/>
      * If you call any of the load methods after close method service plugins will be reinitialized.
      */
+    @PreDestroy
     public void close() {
 
         for (final Collection<ServicePlugin<T>> collection : serviceMap.values()) {
