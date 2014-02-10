@@ -1,5 +1,6 @@
 package com.github.kristofa.servicepluginloader;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -14,23 +15,28 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * {@link ServicePluginLoader} is used to discover and load services that are extensions/plugins to our application.
+ * {@link ServicePluginLoader} is used to discover and load services that are extensions/plugins to your application.
  * <p/>
  * Each plugin will have its own {@link ClassLoader} and classpath. In this way we avoid classpath collisions between
  * plugins. The services are loaded from external resources (jar files, directories, over the network) that are initially not
  * part of the classpath of our application.
  * <p/>
- * This {@link ServicePluginLoader} uses the {@link java.util.ServiceLoader}. This means that services needs to be defined in
- * the same way as {@link java.util.ServiceLoader}. See <a
- * href="http://uj2.blogspot.com/2012/04/simple-plugin-architecture-with.html">here for details</a>.
+ * This {@link ServicePluginLoader} uses the {@link java.util.ServiceLoader} underneath but extends it with the possibility
+ * to define custom queryable properties for services.
+ * <p/>
+ * Services are discovered and loaded lazily when calling any of the load methods for the first time. Once loaded they are
+ * cached till close() or reload() is called.
  * 
  * @author kristof
  * @param <T> The type of services we want to discover and load.
  */
 public class ServicePluginLoader<T> {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServicePluginLoader.class);
     private final static Properties EMPTY_PROPERTIES = new Properties();
     private final Map<Properties, Collection<ServicePlugin<T>>> serviceMap =
         new HashMap<Properties, Collection<ServicePlugin<T>>>();
@@ -89,6 +95,42 @@ public class ServicePluginLoader<T> {
         }
         // See if the properties we want are a subset of 1 or more plugins.
         return matchSubset(properties);
+    }
+
+    /**
+     * Removes all loaded plugins. In case plugins implement {@link Closeable} interface they will be closed prior to
+     * removal.
+     * <p/>
+     * Plugins, including any new added ones, will be loaded when calling any of the load methods.
+     */
+    public void reload() {
+        close();
+    }
+
+    /**
+     * Removes all loaded plugins. In case plugins implement {@link Closeable} interface they will be closed prior to
+     * removal.
+     * <p/>
+     * If you call any of the load methods after close method service plugins will be reinitialized.
+     */
+    public void close() {
+
+        for (final Collection<ServicePlugin<T>> collection : serviceMap.values()) {
+            for (final ServicePlugin<T> servicePlugin : collection) {
+                final T plugin = servicePlugin.getPlugin();
+                if (plugin instanceof Closeable) {
+                    try {
+                        ((Closeable)plugin).close();
+                    } catch (final IOException e) {
+                        LOGGER.warn("Failed to close plugin.", e);
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        serviceMap.clear();
+        initialized = false;
 
     }
 

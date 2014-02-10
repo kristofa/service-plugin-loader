@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,6 +53,11 @@ public class ServicePluginLoaderTest {
         pluginLoader = new ServicePluginLoader<ShapeDrawer>(ShapeDrawer.class, pluginsClassPathProvider);
     }
 
+    @After
+    public void tearDown() {
+        pluginLoader.close();
+    }
+
     @Test
     public void testLoadAll() {
         final Collection<ServicePlugin<ShapeDrawer>> plugins = pluginLoader.load();
@@ -62,6 +68,16 @@ public class ServicePluginLoaderTest {
     @Test
     public void testLoadExactlyMatchingProperties() {
 
+        matchSinglePlugin(expectedPluginProperties, expectedPluginProperties);
+        matchSinglePlugin(expectedPluginProperties2, expectedPluginProperties2);
+    }
+
+    @Test
+    public void testReload() {
+
+        matchSinglePlugin(expectedPluginProperties, expectedPluginProperties);
+        matchSinglePlugin(expectedPluginProperties2, expectedPluginProperties2);
+        pluginLoader.reload();
         matchSinglePlugin(expectedPluginProperties, expectedPluginProperties);
         matchSinglePlugin(expectedPluginProperties2, expectedPluginProperties2);
     }
