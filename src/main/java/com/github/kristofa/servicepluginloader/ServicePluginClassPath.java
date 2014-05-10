@@ -14,7 +14,7 @@ import org.apache.commons.lang3.Validate;
  * 
  * @author kristof
  */
-public class ServicePluginClasspath2 {
+public class ServicePluginClassPath {
 
     private final Collection<URL> urls = new HashSet<URL>();
 
@@ -24,7 +24,7 @@ public class ServicePluginClasspath2 {
      * @param urls Urls at which to load classes for this plugin. Collection should not be <code>null</code> and not be
      *            empty.
      */
-    public ServicePluginClasspath2(final Collection<URL> urls) {
+    public ServicePluginClassPath(final Collection<URL> urls) {
         Validate.notNull(urls);
         Validate.isTrue(!urls.isEmpty(), "Collection should not be empty.");
         this.urls.addAll(urls);
@@ -35,7 +35,7 @@ public class ServicePluginClasspath2 {
      * 
      * @param url Single URL.
      */
-    public ServicePluginClasspath2(final URL url) {
+    public ServicePluginClassPath(final URL url) {
         Validate.notNull(url);
         urls.add(url);
     }
