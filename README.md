@@ -16,6 +16,15 @@ part of the classpath of our application.
 4. To avoid class path collisions the plugins can't be initially part of our application class path. The jars or directories with classes can come from anywhere as long as it can be defined by a URL.
 5. The ServicePluginLoader has detected and loaded the plugins and will return the plugins the requester is interested in.  The plugins will remain cached which means that a 2nd request for services will not trigger a new load.
 
+## Maven artefact ##
+
+Available through Maven Central:
+
+    <dependency>
+        <groupId>com.github.kristofa</groupId>
+        <artifactId>service-plugin-loader</artifactId>
+        <version>0.1</version>
+    </dependency>
 
 ## Creating plugins ##
 
