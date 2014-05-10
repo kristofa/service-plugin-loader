@@ -8,7 +8,7 @@ Each plugin will have its own ClassLoader and classpath. In this way we avoid cl
 plugins. The services are loaded from external resources (local jar files, directories, over the network) that are initially not
 part of the classpath of our application.
 
-![ServicePluginLoader overview](https://github.com/kristofa/service-plugin-loader/tree/master/src/main/resources/service_plugin_loader.png)
+![ServicePluginLoader overview](https://raw.github.com/kristofa/service-plugin-loader/tree/master/src/main/resources/service_plugin_loader.png)
 
 1. The application accesses the ServicePluginLoader, asking to get plugins that implement a specific interface and optionally with specific key/value properties.
 2. The ServicePluginLoader consults a configuration which contains the classpath for each plugin. This is hidden behind an interface so we can choose to have the configuration in a file, retrieve it from a database, url,...
