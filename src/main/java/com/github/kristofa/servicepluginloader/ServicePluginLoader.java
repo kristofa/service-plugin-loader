@@ -3,9 +3,6 @@ package com.github.kristofa.servicepluginloader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,9 +39,9 @@ public class ServicePluginLoader<T> {
     private final static Properties EMPTY_PROPERTIES = new Properties();
     private final Map<Properties, Collection<ServicePlugin<T>>> serviceMap =
         new HashMap<Properties, Collection<ServicePlugin<T>>>();
-    private final ServicePluginsClassPathProvider pluginsClassPathProvider;
     private final Class<T> clazz;
     private boolean initialized = false;
+    private final ServicePluginsClassLoaderProvider classLoaderProvider;
 
     /**
      * Creates a new instance.
@@ -53,10 +50,20 @@ public class ServicePluginLoader<T> {
      * @param pluginProvider Provides the classpath for each of our plugins. Should not be <code>null</code>.
      */
     public ServicePluginLoader(final Class<T> clazz, final ServicePluginsClassPathProvider pluginProvider) {
+        this(clazz, new DefaultClassLoaderProvider(pluginProvider));
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param clazz Service Plugin type.
+     * @param classLoaderProvider Provides the classloader for each of our plugins. Should not be <code>null</code>.
+     */
+    public ServicePluginLoader(final Class<T> clazz, final ServicePluginsClassLoaderProvider classLoaderProvider) {
         Validate.notNull(clazz);
-        Validate.notNull(pluginProvider);
+        Validate.notNull(classLoaderProvider);
         this.clazz = clazz;
-        this.pluginsClassPathProvider = pluginProvider;
+        this.classLoaderProvider = classLoaderProvider;
     }
 
     /**
@@ -81,11 +88,7 @@ public class ServicePluginLoader<T> {
         Validate.notNull(properties);
         synchronized (this) {
             if (!initialized) {
-                try {
-                    load(clazz);
-                } catch (final MalformedURLException e) {
-                    throw new IllegalStateException(e);
-                }
+                load(clazz);
                 initialized = true;
             }
         }
@@ -158,17 +161,15 @@ public class ServicePluginLoader<T> {
         return servicePlugins;
     }
 
-    private void load(final Class<T> clazz) throws MalformedURLException {
+    private void load(final Class<T> clazz) {
 
-        for (final ServicePluginClassPath extension : pluginsClassPathProvider.getPlugins()) {
+        for (final ClassLoader pluginClassLoader : classLoaderProvider.getPluginsClassLoaders()) {
 
-            final URL[] urls = getArray(extension);
-            final URLClassLoader urlClassLoader = new URLClassLoader(urls);
-            final java.util.ServiceLoader<T> loader = java.util.ServiceLoader.load(clazz, urlClassLoader);
+            final java.util.ServiceLoader<T> loader = java.util.ServiceLoader.load(clazz, pluginClassLoader);
             final Iterator<T> iterator = loader.iterator();
             while (iterator.hasNext()) {
                 final T instance = iterator.next();
-                final Properties properties = loadPropertiesForClass(urlClassLoader, instance.getClass().getName());
+                final Properties properties = loadPropertiesForClass(pluginClassLoader, instance.getClass().getName());
 
                 Collection<ServicePlugin<T>> collection = serviceMap.get(properties);
                 if (collection == null) {
@@ -179,17 +180,6 @@ public class ServicePluginLoader<T> {
             }
         }
 
-    }
-
-    private URL[] getArray(final ServicePluginClassPath extension) {
-        final URL[] urls = new URL[extension.getUrls().size()];
-
-        int i = 0;
-        for (final URL url : extension.getUrls()) {
-            urls[i] = url;
-            i++;
-        }
-        return urls;
     }
 
     private Properties loadPropertiesForClass(final ClassLoader classLoader, final String className) {
