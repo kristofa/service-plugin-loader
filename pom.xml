@@ -10,7 +10,7 @@
 
   <groupId>com.github.kristofa</groupId>
   <artifactId>service-plugin-loader</artifactId>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2</version>
   <packaging>jar</packaging>
 
   <name>Service Plugin Loader</name>
