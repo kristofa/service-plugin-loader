@@ -1,5 +1,7 @@
 # Service Plugin Loader #
 
+**The repository is archived as it is not maintained anymore. It is still available in read-only mode and can still be forked.** 
+
 Service Plugin Loader builds upon `java.util.ServiceLoader`.
 
 It is used to discover and load service plugins that are extensions/plugins to your application.
